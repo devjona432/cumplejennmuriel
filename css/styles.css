@@ -1,0 +1,140 @@
+/* ==========================================================================
+   HOMENAJE DE CUMPLEAÑOS · JENN MURIEL
+   Hoja de estilos personalizada (complementa Tailwind CSS)
+   Paleta: Negro #09090B · Rosa Pastel #F9A8D4 · Fucsia #EC4899 · Blanco #FAFAFA
+   --------------------------------------------------------------------------
+   1. Base y tipografía
+   2. Títulos (hero y secciones)
+   3. Fondos y efectos ambientales
+   4. Galería: retratos y difuminado
+   5. Animación de entrada al hacer scroll
+   6. Sobre digital / carta
+   7. Ecualizador del reproductor de piano
+   8. Controles de rango (slider de difuminado)
+   ========================================================================== */
+
+/* ==========================================================================
+   1. BASE Y TIPOGRAFÍA
+   ========================================================================== */
+body {
+    background-color: #09090B;
+    color: #FAFAFA;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   2. TÍTULOS
+   ========================================================================== */
+.hero-title {
+    font-size: clamp(2.65rem, 7.5vw, 5.75rem);
+    line-height: 1.06;
+}
+
+.section-title {
+    font-size: clamp(1.95rem, 4.5vw, 3.15rem);
+    line-height: 1.15;
+}
+
+/* ==========================================================================
+   3. FONDOS Y EFECTOS AMBIENTALES
+   ========================================================================== */
+/* Resplandor ambiental en rosa pastel y fucsia */
+.ambient-glow {
+    background: radial-gradient(circle at 50% 0%, rgba(244, 114, 182, 0.18) 0%, rgba(236, 72, 153, 0.08) 42%, rgba(9, 9, 11, 1) 78%);
+}
+
+/* Retrato de fondo del hero, suavemente difuminado */
+.hero-portrait-blur {
+    filter: blur(22px) saturate(1.15);
+}
+
+/* ==========================================================================
+   4. GALERÍA: RETRATOS Y DIFUMINADO
+   ========================================================================== */
+/* Transición suave para efecto difuminado de retratos */
+.blur-photo {
+    transition: filter 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Difuminado inicial aplicado por CSS (JS lo sobrescribe al interactuar) */
+.gallery-photo {
+    filter: blur(16px);
+}
+
+/* ==========================================================================
+   5. ANIMACIÓN DE ENTRADA AL HACER SCROLL
+   ========================================================================== */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.75s ease-out, transform 0.75s ease-out;
+}
+
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   6. SOBRE DIGITAL / CARTA
+   ========================================================================== */
+.envelope-wrapper {
+    perspective: 1000px;
+}
+
+.letter-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
+}
+
+.letter-content.open {
+    max-height: 1200px;
+    opacity: 1;
+}
+
+/* ==========================================================================
+   7. ECUALIZADOR DEL REPRODUCTOR DE PIANO
+   ========================================================================== */
+@keyframes eqPulse {
+    0%, 100% { transform: scaleY(0.35); }
+    50% { transform: scaleY(1); }
+}
+
+.eq-bar {
+    transform-origin: bottom;
+    animation: eqPulse 0.9s ease-in-out infinite;
+}
+
+.eq-bar:nth-child(2) { animation-delay: 0.2s; }
+.eq-bar:nth-child(3) { animation-delay: 0.4s; }
+.eq-bar:nth-child(4) { animation-delay: 0.15s; }
+
+/* ==========================================================================
+   8. CONTROLES DE RANGO (SLIDER DE DIFUMINADO)
+   ========================================================================== */
+input[type=range] {
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #EC4899;
+    border: 2px solid #FAFAFA;
+    cursor: pointer;
+    margin-top: -8px;
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.85);
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: rgba(250, 250, 250, 0.22);
+    border-radius: 999px;
+}

@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños, Jenn Muriel | Edición Especial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#09090B',
+                        charcoal: '#121216',
+                        pastelPink: '#F9A8D4',
+                        roseGlow: '#F472B6',
+                        vibrantFuchsia: '#EC4899',
+                        cleanWhite: '#FAFAFA',
+                        softSilver: '#E4E4E7',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos base y paleta Negro (#09090B), Rosa Pastel (#F9A8D4), Fucsia (#EC4899) y Blanco (#FAFAFA) */
+        body {
+            background-color: #09090B;
+            color: #FAFAFA;
+            overflow-x: hidden;
+        }
+
+        .hero-title {
+            font-size: clamp(2.65rem, 7.5vw, 5.75rem);
+            line-height: 1.06;
+        }
+
+        .section-title {
+            font-size: clamp(1.95rem, 4.5vw, 3.15rem);
+            line-height: 1.15;
+        }
+
+        /* Resplandor ambiental en rosa pastel y fucsia */
+        .ambient-glow {
+            background: radial-gradient(circle at 50% 0%, rgba(244, 114, 182, 0.18) 0%, rgba(236, 72, 153, 0.08) 42%, rgba(9, 9, 11, 1) 78%);
+        }
+
+        /* Transición suave para efecto difuminado de retratos */
+        .blur-photo {
+            transition: filter 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Animación de entrada al hacer scroll */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.75s ease-out, transform 0.75s ease-out;
+        }
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Sobre digital interactivo */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+        .letter-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
+        }
+        .letter-content.open {
+            max-height: 1200px;
+            opacity: 1;
+        }
+
+        /* Ondas ecualizadoras para reproductor de piano */
+        @keyframes eqPulse {
+            0%, 100% { transform: scaleY(0.35); }
+            50% { transform: scaleY(1); }
+        }
+        .eq-bar {
+            transform-origin: bottom;
+            animation: eqPulse 0.9s ease-in-out infinite;
+        }
+        .eq-bar:nth-child(2) { animation-delay: 0.2s; }
+        .eq-bar:nth-child(3) { animation-delay: 0.4s; }
+        .eq-bar:nth-child(4) { animation-delay: 0.15s; }
+
+        /* Control deslizante de desenfoque */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #EC4899;
+            border: 2px solid #FAFAFA;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.85);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(250, 250, 250, 0.22);
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-vibrantFuchsia/30 selection:text-cleanWhite">
+
+    <!-- Canvas de Confeti Interactivo -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Notificación Toast (Sin emojis ni alert) -->
+    <div id="toast-notification" class="fixed bottom-24 sm:bottom-24 right-4 sm:right-6 left-4 sm:left-auto z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-charcoal/95 backdrop-blur-md border border-roseGlow/45 text-cleanWhite px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+            <span class="w-7 h-7 rounded-full bg-vibrantFuchsia/20 border border-roseGlow/40 flex items-center justify-center text-pastelPink shrink-0">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </span>
+            <p id="toast-message" class="text-xs sm:text-sm font-medium">Notificación</p>
+        </div>
+    </div>
+
+    <!-- Controles Flotantes en Esquina Inferior Derecha: Confeti + Melodía Ambiental de Piano -->
+    <div class="fixed bottom-4 right-4 z-40 flex items-center gap-2.5">
+        <!-- Botón secundario para lanzar ráfagas de confeti -->
+        <button onclick="triggerConfetti()" class="w-12 h-12 rounded-full bg-charcoal/90 hover:bg-charcoal border border-pastelPink/40 backdrop-blur-xl shadow-2xl shadow-vibrantFuchsia/20 flex items-center justify-center text-pastelPink hover:text-cleanWhite transition-all active:scale-95" aria-label="Lanzar ráfaga de confeti" title="Lanzar confeti">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Botón principal de melodía ambiental de piano -->
+        <button id="piano-toggle-btn" onclick="togglePianoMusic()" class="group flex items-center gap-3 px-4 py-3 rounded-full bg-charcoal/95 hover:bg-charcoal border border-pastelPink/45 backdrop-blur-xl shadow-2xl shadow-vibrantFuchsia/25 transition-all active:scale-95 min-h-[48px]" aria-label="Alternar melodía ambiental de piano">
+            <div id="piano-icon-idle" class="w-7 h-7 rounded-full bg-vibrantFuchsia/20 border border-roseGlow/50 flex items-center justify-center text-pastelPink">
+                <i data-lucide="music" class="w-4 h-4"></i>
+            </div>
+            <div id="piano-eq-bars" class="hidden items-end gap-0.5 h-4 w-7 justify-center">
+                <span class="eq-bar w-1 h-4 bg-pastelPink rounded-full"></span>
+                <span class="eq-bar w-1 h-4 bg-vibrantFuchsia rounded-full"></span>
+                <span class="eq-bar w-1 h-4 bg-cleanWhite rounded-full"></span>
+                <span class="eq-bar w-1 h-4 bg-roseGlow rounded-full"></span>
+            </div>
+            <div class="text-left pr-1">
+                <span id="piano-status-label" class="block text-xs font-semibold text-cleanWhite leading-none">Melodía Piano</span>
+                <span id="piano-sub-label" class="block text-[10px] text-pastelPink/85 mt-0.5">Activar ambiente</span>
+            </div>
+        </button>
+    </div>
+
+    <!-- Barra de Navegación Responsiva Mobile-First -->
+    <nav class="fixed top-0 inset-x-0 z-40 bg-obsidian/85 backdrop-blur-xl border-b border-cleanWhite/10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="#" class="font-serif italic text-xl tracking-wide text-cleanWhite flex items-center gap-2.5 py-2">
+                <span class="w-2 h-2 rounded-full bg-vibrantFuchsia inline-block shadow-[0_0_8px_#EC4899]"></span>
+                JM <span class="text-[11px] font-sans not-italic uppercase tracking-[0.22em] text-pastelPink ml-0.5">19 · Nov</span>
+            </a>
+
+            <!-- Enlaces Escritorio -->
+            <div class="hidden lg:flex items-center gap-8 text-sm text-cleanWhite/80">
+                <a href="#esencia" class="hover:text-pastelPink transition-colors py-2">Tu Esencia</a>
+                <a href="#galeria" class="hover:text-pastelPink transition-colors py-2">Galería Difuminada</a>
+                <a href="#deseos" class="hover:text-pastelPink transition-colors py-2">19 Deseos</a>
+                <a href="#carta" class="hover:text-pastelPink transition-colors py-2">Carta</a>
+            </div>
+
+            <!-- Botón Celebrar + Hamburguesa Móvil -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="triggerConfetti()" class="px-4 py-2.5 rounded-full bg-vibrantFuchsia/20 hover:bg-vibrantFuchsia/35 border border-roseGlow/45 text-cleanWhite text-xs sm:text-sm font-medium transition-all flex items-center gap-2 active:scale-95 min-h-[42px]">
+                    <i data-lucide="party-popper" class="w-4 h-4 text-pastelPink"></i>
+                    <span>Celebrar</span>
+                </button>
+
+                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl bg-cleanWhite/[0.05] hover:bg-cleanWhite/[0.1] border border-cleanWhite/15 text-cleanWhite min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Abrir menú de navegación" aria-expanded="false">
+                    <i id="hamburger-icon" data-lucide="menu" class="w-5 h-5"></i>
+                    <i id="close-menu-icon" data-lucide="x" class="w-5 h-5 hidden"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menú Desplegable Móvil -->
+        <div id="mobile-menu-drawer" class="hidden lg:hidden bg-obsidian/98 backdrop-blur-2xl border-b border-pastelPink/20 px-4 pt-3 pb-6 space-y-1.5">
+            <a href="#esencia" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="sparkles" class="w-4 h-4 text-pastelPink"></i>
+                <span>Tu Esencia</span>
+            </a>
+            <a href="#galeria" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="image" class="w-4 h-4 text-pastelPink"></i>
+                <span>Galería Difuminada</span>
+            </a>
+            <a href="#deseos" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="star" class="w-4 h-4 text-pastelPink"></i>
+                <span>19 Deseos de Cumpleaños</span>
+            </a>
+            <a href="#carta" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="mail-open" class="w-4 h-4 text-pastelPink"></i>
+                <span>Carta de Cumpleaños</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- HERO CINEMATOGRÁFICO CON RETRATO DIFUMINADO DE FONDO Y RELOJ EN VIVO -->
+    <header class="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-4 sm:px-6 ambient-glow overflow-hidden">
+        <!-- Retrato de Jenn Muriel suavemente difuminado como atmósfera de fondo -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <img src="https://www.elespectador.com/wp-content/uploads/elespectador/73KVEGLNQVD6RI4M2URUY2GXRI.jpg?quality=60&w=768"
+                 onerror="this.style.display='none'"
+                 alt="Atmósfera retrato Jenn Muriel"
+                 class="w-full h-full object-cover object-center opacity-25 scale-110"
+                 style="filter: blur(22px) saturate(1.15);">
+            <div class="absolute inset-0 bg-gradient-to-b from-obsidian/80 via-obsidian/75 to-obsidian"></div>
+        </div>
+
+        <!-- Destellos ambientales en rosa pastel y fucsia -->
+        <div class="absolute top-1/4 left-4 sm:left-10 w-64 sm:w-80 h-64 sm:h-80 bg-pastelPink/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-1/4 right-4 sm:right-10 w-72 sm:w-96 h-72 sm:h-96 bg-vibrantFuchsia/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10 w-full">
+            <!-- Insignia de Fecha -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-cleanWhite/[0.05] border border-pastelPink/35 backdrop-blur-md mb-6 sm:mb-8">
+                <i data-lucide="calendar-heart" class="w-4 h-4 text-vibrantFuchsia"></i>
+                <span class="text-xs sm:text-sm uppercase tracking-[0.22em] text-pastelPink font-medium">19 de Noviembre · Edición Especial</span>
+            </div>
+
+            <!-- Título Principal -->
+            <h1 class="hero-title font-serif font-bold tracking-tight text-cleanWhite mb-5 sm:mb-6">
+                Feliz Cumpleaños, <br>
+                <span class="italic font-normal bg-gradient-to-r from-cleanWhite via-pastelPink to-vibrantFuchsia bg-clip-text text-transparent">Jenn Muriel</span>
+            </h1>
+
+            <!-- Subtítulo -->
+            <p class="max-w-2xl mx-auto text-sm sm:text-lg md:text-xl text-cleanWhite/80 font-light leading-relaxed mb-8 sm:mb-10 px-2">
+                Un  creado exclusivamente para celebrar tu luz propia, tu autenticidad sin filtros, tu sensibilidad por los animales y la energía única que transmites cada día.
+            </p>
+
+            <!-- Reloj de Cuenta Regresiva en Vivo hacia el 19 de Noviembre -->
+            <div id="countdown-container" class="max-w-xl mx-auto mb-9 sm:mb-10 p-4 sm:p-5 rounded-3xl bg-charcoal/85 border border-pastelPink/30 backdrop-blur-xl shadow-2xl">
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-pastelPink"></i>
+                    <span id="countdown-heading" class="text-[11px] uppercase tracking-[0.22em] text-pastelPink font-semibold">
+                        Cuenta regresiva para celebrar tu día
+                    </span>
+                </div>
+                <div id="countdown-grid" class="grid grid-cols-4 gap-2 sm:gap-4">
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-days" class="font-serif text-2xl sm:text-3xl font-bold text-cleanWhite block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Días</span>
+                    </div>
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-hours" class="font-serif text-2xl sm:text-3xl font-bold text-cleanWhite block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Horas</span>
+                    </div>
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-minutes" class="font-serif text-2xl sm:text-3xl font-bold text-cleanWhite block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Min</span>
+                    </div>
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-seconds" class="font-serif text-2xl sm:text-3xl font-bold text-roseGlow block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Seg</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 px-2">
+                <button onclick="triggerConfetti()" class="w-full sm:w-auto px-7 py-4 rounded-full bg-gradient-to-r from-vibrantFuchsia to-roseGlow text-cleanWhite font-semibold text-sm sm:text-base shadow-lg shadow-vibrantFuchsia/30 hover:shadow-vibrantFuchsia/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2.5 min-h-[52px]">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    <span>Lanzar Confeti de Cumpleaños</span>
+                </button>
+                <a href="#carta" onclick="openEnvelopeFromHero()" class="w-full sm:w-auto px-7 py-4 rounded-full bg-cleanWhite/[0.06] hover:bg-cleanWhite/[0.12] border border-cleanWhite/25 text-cleanWhite font-medium text-sm sm:text-base backdrop-blur-md transition-all flex items-center justify-center gap-2.5 min-h-[52px]">
+                    <i data-lucide="mail-open" class="w-5 h-5 text-pastelPink"></i>
+                    <span>Leer tu Carta Personal</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECCIÓN 1: TU ESENCIA — LO QUE TE HACE ÚNICA (4 TARJETAS GENUINAS) -->
+    <section id="esencia" class="py-16 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto">
+        <div class="text-center mb-12 sm:mb-16 reveal-on-scroll">
+            <span class="text-xs uppercase tracking-[0.25em] text-roseGlow font-semibold">Admiración Genuina</span>
+            <h2 class="section-title font-serif text-cleanWhite mt-2.5">Tu Esencia — Lo que te hace única</h2>
+            <p class="text-cleanWhite/65 text-sm sm:text-base mt-3 max-w-2xl mx-auto">
+                Cuatro cualidades que reflejan tu brillo natural y hacen especial cada momento que compartes.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Tarjeta 1: Autenticidad sin filtros -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-pastelPink/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-pastelPink/15 border border-pastelPink/35 flex items-center justify-center text-pastelPink mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="gem" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Autenticidad sin filtros</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    Tu manera transparente de expresarte y mantenerte fiel a lo que eres convierte tu presencia en una inspiración real y cercana.
+                </p>
+            </div>
+
+            <!-- Tarjeta 2: Sensibilidad y amor por los animales -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-vibrantFuchsia/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-vibrantFuchsia/15 border border-vibrantFuchsia/35 flex items-center justify-center text-roseGlow mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Sensibilidad y amor por los animales</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    El cariño incondicional y la ternura con la que cuidas y proteges a los animales dejan ver la nobleza de tu corazón.
+                </p>
+            </div>
+
+            <!-- Tarjeta 3: Fuerza y carácter propio -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-pastelPink/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-pastelPink/15 border border-pastelPink/35 flex items-center justify-center text-pastelPink mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Fuerza y carácter propio</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    Tu determinación para trazar tu propio camino con seguridad, estilo e independencia demuestra una fortaleza admirable.
+                </p>
+            </div>
+
+            <!-- Tarjeta 4: Luz y evolución constante -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-vibrantFuchsia/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-vibrantFuchsia/15 border border-vibrantFuchsia/35 flex items-center justify-center text-roseGlow mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="sun" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Luz y evolución constante</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    Cada nueva etapa te encuentra creciendo, renovando tus sueños y proyectando una serenidad que ilumina a quienes te rodean.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN 2: GALERÍA DIFUMINADA INTERACTIVA -->
+    <section id="galeria" class="py-16 sm:py-24 px-4 sm:px-6 bg-charcoal/55 border-y border-cleanWhite/10">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 reveal-on-scroll">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.25em] text-pastelPink font-semibold">Estética & Misterio</span>
+                    <h2 class="section-title font-serif text-cleanWhite mt-2">Galería Difuminada Interactiva</h2>
+                    <p class="text-cleanWhite/70 text-sm sm:text-base mt-3 max-w-xl">
+                        Pasa el cursor o toca cada retrato para revelarlo, ajusta la intensidad global del desenfoque o añade tus propias fotografías favoritas desde tu dispositivo.
+                    </p>
+                </div>
+
+                <!-- Panel de Control Global del Difuminado + Subida de Foto -->
+                <div class="p-4 sm:p-5 rounded-2xl bg-obsidian/95 border border-pastelPink/30 backdrop-blur-md flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shadow-xl">
+                    <div class="flex flex-col gap-2 min-w-[180px]">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-cleanWhite/75">Intensidad difuminado:</span>
+                            <span id="blur-value-label" class="text-roseGlow font-semibold">16px</span>
+                        </div>
+                        <input id="global-blur-slider" type="range" min="0" max="28" value="16" oninput="updateGlobalBlur(this.value)" aria-label="Control de intensidad de difuminado">
+                    </div>
+
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                        <button id="toggle-all-btn" onclick="toggleAllPhotos()" class="flex-1 sm:flex-initial px-4 py-3 rounded-xl bg-vibrantFuchsia/20 hover:bg-vibrantFuchsia/35 border border-roseGlow/45 text-cleanWhite text-xs font-semibold transition-all whitespace-nowrap flex items-center justify-center gap-2 min-h-[44px]">
+                            <i data-lucide="eye" class="w-4 h-4 text-pastelPink"></i>
+                            <span id="toggle-all-text">Revelar Todas</span>
+                        </button>
+
+                        <button onclick="openUploadModal()" class="flex-1 sm:flex-initial px-4 py-3 rounded-xl bg-cleanWhite/[0.06] hover:bg-cleanWhite/[0.12] border border-cleanWhite/20 text-cleanWhite text-xs font-semibold transition-all whitespace-nowrap flex items-center justify-center gap-2 min-h-[44px]">
+                            <i data-lucide="image-plus" class="w-4 h-4 text-pastelPink"></i>
+                            <span>Subir Foto</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Tarjetas Fotográficas Difuminadas -->
+            <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
+                
+                <!-- Foto 1: Retrato Real de Jenn Muriel #1 -->
+                <div class="reveal-on-scroll group relative rounded-3xl overflow-hidden bg-obsidian border border-pastelPink/25 hover:border-roseGlow/60 transition-colors shadow-2xl flex flex-col">
+                    <div class="relative aspect-[4/5] overflow-hidden cursor-pointer select-none" 
+                         onmouseenter="hoverRevealPhoto(0, true)" 
+                         onmouseleave="hoverRevealPhoto(0, false)"
+                         onclick="toggleSinglePhoto(0)">
+                        <img id="gallery-img-0" 
+                             src="https://www.elespectador.com/wp-content/uploads/elespectador/73KVEGLNQVD6RI4M2URUY2GXRI.jpg?quality=60&w=768" 
+                             onerror="handleImageFallback(this, 'Retrato I')"
+                             alt="Retrato de Jenn Muriel" 
+                             style="filter: blur(16px);"
+                             class="blur-photo w-full h-full object-cover object-center scale-105 group-hover:scale-100">
+                        
+                        <div id="overlay-0" class="absolute inset-0 bg-obsidian/45 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
+                            <span class="px-3.5 py-1.5 rounded-full bg-obsidian/90 border border-pastelPink/45 text-[11px] uppercase tracking-wider text-pastelPink mb-2.5 shadow-lg inline-flex items-center gap-1.5">
+                                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                                Retrato I · Luz Propia
+                            </span>
+                            <p class="text-xs text-cleanWhite/90 max-w-[220px] leading-relaxed bg-obsidian/75 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-cleanWhite/10">
+                                Toca o pasa el cursor para revelar este retrato.
+                            </p>
+                        </div>
+
+                        <button type="button" onclick="event.stopPropagation(); toggleSinglePhoto(0)" id="btn-photo-0" class="absolute bottom-4 right-4 z-20 px-4 py-2.5 rounded-full bg-obsidian/90 hover:bg-obsidian border border-roseGlow/55 text-cleanWhite text-xs font-medium backdrop-blur-md shadow-lg transition-all flex items-center gap-1.5 min-h-[40px]">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-pastelPink"></i>
+                            <span>Revelar recuerdo</span>
+                        </button>
+                    </div>
+                    <div class="p-6 bg-charcoal border-t border-cleanWhite/10 flex-1 flex flex-col justify-between">
+                        <p class="font-serif italic text-lg text-cleanWhite/95">“Tu autenticidad es el brillo que te hace inolvidable.”</p>
+                        <span class="text-xs text-pastelPink mt-3 block uppercase tracking-widest">01 · Esencia & Mirada</span>
+                    </div>
+                </div>
+
+                <!-- Foto 2: Retrato Real de Jenn Muriel #2 -->
+                <div class="reveal-on-scroll group relative rounded-3xl overflow-hidden bg-obsidian border border-pastelPink/25 hover:border-roseGlow/60 transition-colors shadow-2xl flex flex-col">
+                    <div class="relative aspect-[4/5] overflow-hidden cursor-pointer select-none" 
+                         onmouseenter="hoverRevealPhoto(1, true)" 
+                         onmouseleave="hoverRevealPhoto(1, false)"
+                         onclick="toggleSinglePhoto(1)">
+                        <img id="gallery-img-1" 
+                             src="https://cloudfront-us-east-1.images.arcpublishing.com/infobae/B4GOPL5E2VG33I227A7ERJ7Q3A.jpg" 
+                             onerror="handleImageFallback(this, 'Retrato II')"
+                             alt="Retrato artístico de Jenn Muriel" 
+                             style="filter: blur(16px);"
+                             class="blur-photo w-full h-full object-cover object-center scale-105 group-hover:scale-100">
+                        
+                        <div id="overlay-1" class="absolute inset-0 bg-obsidian/45 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
+                            <span class="px-3.5 py-1.5 rounded-full bg-obsidian/90 border border-pastelPink/45 text-[11px] uppercase tracking-wider text-pastelPink mb-2.5 shadow-lg inline-flex items-center gap-1.5">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                Retrato II · Estilo Único
+                            </span>
+                            <p class="text-xs text-cleanWhite/90 max-w-[220px] leading-relaxed bg-obsidian/75 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-cleanWhite/10">
+                                Toca o pasa el cursor para descubrir la nitidez de esta imagen.
+                            </p>
+                        </div>
+
+                        <button type="button" onclick="event.stopPropagation(); toggleSinglePhoto(1)" id="btn-photo-1" class="absolute bottom-4 right-4 z-20 px-4 py-2.5 rounded-full bg-obsidian/90 hover:bg-obsidian border border-roseGlow/55 text-cleanWhite text-xs font-medium backdrop-blur-md shadow-lg transition-all flex items-center gap-1.5 min-h-[40px]">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-pastelPink"></i>
+                            <span>Revelar recuerdo</span>
+                        </button>
+                    </div>
+                    <div class="p-6 bg-charcoal border-t border-cleanWhite/10 flex-1 flex flex-col justify-between">
+                        <p class="font-serif italic text-lg text-cleanWhite/95">“Fuerte, libre y fiel a cada paso de tu propia historia.”</p>
+                        <span class="text-xs text-roseGlow mt-3 block uppercase tracking-widest">02 · Carácter & Estilo</span>
+                    </div>
+                </div>
+
+                <!-- Foto 3: Marco Artístico Personalizable (Por defecto imagen noble / reemplazable desde dispositivo) -->
+                <div class="reveal-on-scroll group relative rounded-3xl overflow-hidden bg-obsidian border border-pastelPink/25 hover:border-roseGlow/60 transition-colors shadow-2xl flex flex-col md:col-span-2 lg:col-span-1">
+                    <div class="relative aspect-[4/5] overflow-hidden cursor-pointer select-none" 
+                         onmouseenter="hoverRevealPhoto(2, true)" 
+                         onmouseleave="hoverRevealPhoto(2, false)"
+                         onclick="toggleSinglePhoto(2)">
+                        <img id="gallery-img-2" 
+                             src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80" 
+                             onerror="handleImageFallback(this, 'Recuerdo III')"
+                             alt="Tributo a la ternura y amor animalista" 
+                             style="filter: blur(16px);"
+                             class="blur-photo w-full h-full object-cover object-center scale-105 group-hover:scale-100">
+                        
+                        <div id="overlay-2" class="absolute inset-0 bg-obsidian/45 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
+                            <span id="badge-2" class="px-3.5 py-1.5 rounded-full bg-obsidian/90 border border-pastelPink/45 text-[11px] uppercase tracking-wider text-pastelPink mb-2.5 shadow-lg inline-flex items-center gap-1.5">
+                                <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+                                Postal III · Corazón Noble
+                            </span>
+                            <p id="hint-2" class="text-xs text-cleanWhite/90 max-w-[220px] leading-relaxed bg-obsidian/75 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-cleanWhite/10">
+                                Toca para revelar o sube tu foto favorita usando el botón superior.
+                            </p>
+                        </div>
+
+                        <button type="button" onclick="event.stopPropagation(); toggleSinglePhoto(2)" id="btn-photo-2" class="absolute bottom-4 right-4 z-20 px-4 py-2.5 rounded-full bg-obsidian/90 hover:bg-obsidian border border-roseGlow/55 text-cleanWhite text-xs font-medium backdrop-blur-md shadow-lg transition-all flex items-center gap-1.5 min-h-[40px]">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-pastelPink"></i>
+                            <span>Revelar recuerdo</span>
+                        </button>
+                    </div>
+                    <div class="p-6 bg-charcoal border-t border-cleanWhite/10 flex-1 flex flex-col justify-between">
+                        <p id="caption-2" class="font-serif italic text-lg text-cleanWhite/95">“Que esta nueva vuelta al sol te regale paz, música y sueños cumplidos.”</p>
+                        <span id="subcaption-2" class="text-xs text-pastelPink mt-3 block uppercase tracking-widest">03 · Nobleza & Vida</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN 3: 19 DESEOS PARA EL 19 DE NOVIEMBRE -->
+    <section id="deseos" class="py-16 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto">
+        <div class="text-center mb-12 sm:mb-14 reveal-on-scroll">
+            <span class="text-xs uppercase tracking-[0.25em] text-roseGlow font-semibold">Un Deseo por Cada Número de tu Día</span>
+            <h2 class="section-title font-serif text-cleanWhite mt-2.5">19 Deseos para el 19 de Noviembre</h2>
+            <p class="text-cleanWhite/65 text-sm sm:text-base mt-3 max-w-xl mx-auto">
+                Toca cada tarjeta numerada del 01 al 19 para iluminarla y descubrir un deseo especial para este nuevo año de vida.
+            </p>
+        </div>
+
+        <!-- Cuadrícula Responsiva de 19 Tarjetas Interactivas -->
+        <div id="wishes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 reveal-on-scroll">
+            <!-- Generado dinámicamente por JavaScript con iconos de Lucide -->
+        </div>
+    </section>
+
+    <!-- SECCIÓN 4: CARTA DE CUMPLEAÑOS (SOBRE DIGITAL INTERACTIVO) -->
+    <section id="carta" class="py-16 sm:py-24 px-4 sm:px-6 max-w-4xl mx-auto">
+        <div class="text-center mb-10 sm:mb-12 reveal-on-scroll">
+            <span class="text-xs uppercase tracking-[0.25em] text-roseGlow font-semibold">Un Detalle Exclusivo</span>
+            <h2 class="section-title font-serif text-cleanWhite mt-2">Carta de Cumpleaños</h2>
+        </div>
+
+        <div class="reveal-on-scroll envelope-wrapper">
+            <div class="rounded-3xl bg-gradient-to-b from-charcoal to-obsidian border border-pastelPink/35 shadow-2xl overflow-hidden">
+                <!-- Cabecera del Sobre (Botón para abrir/cerrar) -->
+                <button onclick="toggleLetter()" class="w-full p-6 sm:p-10 text-left flex items-center justify-between gap-4 hover:bg-cleanWhite/[0.02] transition-colors focus:outline-none min-h-[88px]">
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        <div id="wax-seal" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-vibrantFuchsia via-roseGlow to-pastelPink flex items-center justify-center text-cleanWhite font-serif font-bold text-xl shadow-lg shadow-vibrantFuchsia/35 border border-cleanWhite/40 shrink-0 transition-transform duration-500">
+                            JM
+                        </div>
+                        <div>
+                            <span class="text-xs uppercase tracking-widest text-pastelPink block mb-1">Para: Jenn Muriel</span>
+                            <h3 id="letter-prompt-title" class="font-serif text-lg sm:text-2xl text-cleanWhite">Toca para abrir tu carta de cumpleaños</h3>
+                        </div>
+                    </div>
+                    <span id="letter-chevron" class="text-pastelPink transition-transform duration-500 shrink-0">
+                        <i data-lucide="chevron-down" class="w-6 h-6"></i>
+                    </span>
+                </button>
+
+                <!-- Contenido Desplegable de la Carta -->
+                <div id="letter-body" class="letter-content px-6 sm:px-12">
+                    <div class="border-t border-cleanWhite/10 pt-8 pb-10 space-y-5 text-cleanWhite/85 font-light leading-relaxed text-base sm:text-lg">
+                        <p class="font-serif italic text-2xl text-pastelPink">Querida Jenn,</p>
+                        <p>
+                            Quise crear este pequeño espacio pensando únicamente en ti y en celebrar un año más de tu vida. Más allá de las cámaras y las redes sociales, admiro profundamente la mujer auténtica, sensible y resiliente que eres.
+                        </p>
+                        <p>
+                            Deseo de corazón que este nuevo capítulo venga cargado de tranquilidad, salud para ti y para cada uno de los animalitos que llenan tu vida de amor, y momentos inolvidables junto a las personas que te hacen bien.
+                        </p>
+                        <p>
+                            Que nunca te falten motivos para sonreír, música que acompañe tus días y nuevos sueños por conquistar. Feliz cumpleaños, Jenn.
+                        </p>
+                        <div class="pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-cleanWhite/10">
+                            <div>
+                                <p class="text-xs uppercase tracking-widest text-cleanWhite/50">Con mucho cariño y admiración,</p>
+                                <p class="font-serif italic text-lg text-roseGlow mt-0.5">Un detalle hecho especialmente para ti</p>
+                            </div>
+                            <button onclick="triggerConfetti()" class="self-start sm:self-auto px-5 py-3 rounded-full bg-vibrantFuchsia/20 border border-roseGlow/45 text-cleanWhite text-xs font-medium hover:bg-vibrantFuchsia/35 transition-all inline-flex items-center gap-2 min-h-[44px]">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-pastelPink"></i>
+                                <span>Celebrar tu día</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL PARA SUBIR FOTO PROPIA DESDE EL DISPOSITIVO -->
+    <div id="upload-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-obsidian/85 backdrop-blur-xl">
+        <div class="w-full max-w-md rounded-3xl bg-charcoal border border-pastelPink/35 p-6 sm:p-8 shadow-2xl relative">
+            <button onclick="closeUploadModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-cleanWhite/[0.06] hover:bg-cleanWhite/[0.12] flex items-center justify-center text-cleanWhite/75 hover:text-cleanWhite transition-colors" aria-label="Cerrar ventana">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+
+            <div class="w-11 h-11 rounded-2xl bg-vibrantFuchsia/20 border border-roseGlow/40 flex items-center justify-center text-pastelPink mb-4">
+                <i data-lucide="image-plus" class="w-5 h-5"></i>
+            </div>
+
+            <h3 class="font-serif text-2xl text-cleanWhite mb-2">Personalizar Galería</h3>
+            <p class="text-cleanWhite/70 text-xs sm:text-sm mb-6 leading-relaxed">
+                Selecciona una fotografía desde tu dispositivo y elige en qué marco de la galería difuminada deseas colocarla.
+            </p>
+
+            <form onsubmit="handleCustomPhotoUpload(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-pastelPink mb-2">Marco de destino</label>
+                    <select id="target-frame-select" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-cleanWhite/15 text-cleanWhite text-sm focus:outline-none focus:border-roseGlow">
+                        <option value="0">Marco 01 · Esencia & Mirada</option>
+                        <option value="1">Marco 02 · Carácter & Estilo</option>
+                        <option value="2" selected>Marco 03 · Postal Personalizada</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-pastelPink mb-2">Archivo de imagen</label>
+                    <label for="custom-photo-input" class="flex flex-col items-center justify-center w-full h-32 rounded-2xl border-2 border-dashed border-pastelPink/35 hover:border-roseGlow bg-obsidian/60 cursor-pointer transition-colors px-4 text-center">
+                        <i data-lucide="upload-cloud" class="w-7 h-7 text-pastelPink mb-2"></i>
+                        <span id="selected-file-name" class="text-xs text-cleanWhite/80 font-medium">Toca para elegir una foto (JPG, PNG, WEBP)</span>
+                    </label>
+                    <input id="custom-photo-input" type="file" accept="image/*" class="hidden" onchange="updateSelectedFileName(this)" required>
+                </div>
+
+                <div>
+                    <label for="custom-caption-input" class="block text-xs uppercase tracking-wider text-pastelPink mb-2">Frase dedicatoria (opcional)</label>
+                    <input id="custom-caption-input" type="text" maxlength="95" placeholder="Ej: Un recuerdo especial de tu brillo..." class="w-full px-4 py-3 rounded-xl bg-obsidian border border-cleanWhite/15 text-cleanWhite text-sm placeholder:text-cleanWhite/35 focus:outline-none focus:border-roseGlow">
+                </div>
+
+                <div class="pt-2 flex items-center gap-3">
+                    <button type="button" onclick="closeUploadModal()" class="flex-1 py-3 rounded-xl bg-cleanWhite/[0.06] hover:bg-cleanWhite/[0.12] text-cleanWhite text-xs font-semibold transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-vibrantFuchsia to-roseGlow text-cleanWhite text-xs font-semibold shadow-lg shadow-vibrantFuchsia/30 hover:opacity-95 transition-opacity">
+                        Aplicar a Galería
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="py-12 pb-24 sm:pb-12 px-4 text-center border-t border-cleanWhite/10 text-xs text-cleanWhite/55">
+        <p class="font-serif italic text-base text-pastelPink mb-2">Feliz Cumpleaños, Jenn Muriel · 19 de Noviembre</p>
+        <p>Un obsequio digital diseñado con cariño para celebrar tu vida.</p>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        /* ==========================================================================
+           0. FALLBACK ELEGANTE EN SVG PARA IMÁGENES EXTERNAS
+           ========================================================================== */
+        function handleImageFallback(imgEl, label) {
+            imgEl.onerror = null;
+            const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="600" height="750" viewBox="0 0 600 750">
+                    <defs>
+                        <radialGradient id="g" cx="50%" cy="40%" r="65%">
+                            <stop offset="0%" stop-color="#F472B6" stop-opacity="0.38"/>
+                            <stop offset="55%" stop-color="#EC4899" stop-opacity="0.16"/>
+                            <stop offset="100%" stop-color="#09090B" stop-opacity="1"/>
+                        </radialGradient>
+                    </defs>
+                    <rect width="600" height="750" fill="#121216"/>
+                    <rect width="600" height="750" fill="url(#g)"/>
+                    <circle cx="300" cy="320" r="110" fill="none" stroke="#F9A8D4" stroke-opacity="0.35" stroke-width="1.5"/>
+                    <text x="300" y="328" font-family="Georgia, serif" font-style="italic" font-size="36" fill="#FAFAFA" text-anchor="middle">JM</text>
+                    <text x="300" y="475" font-family="sans-serif" font-size="13" letter-spacing="4" fill="#F9A8D4" text-anchor="middle">${label.toUpperCase()}</text>
+                </svg>
+            `.trim();
+            imgEl.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+        }
+
+        /* ==========================================================================
+           1. MENÚ MÓVIL RESPONSIVO
+           ========================================================================== */
+        let isMobileMenuOpen = false;
+
+        function toggleMobileMenu() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            const drawer = document.getElementById('mobile-menu-drawer');
+            const hamIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-menu-icon');
+            const btn = document.getElementById('mobile-menu-btn');
+
+            if (isMobileMenuOpen) {
+                drawer.classList.remove('hidden');
+                hamIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+                btn.setAttribute('aria-expanded', 'true');
+            } else {
+                closeMobileMenu();
+            }
+        }
+
+        function closeMobileMenu() {
+            isMobileMenuOpen = false;
+            const drawer = document.getElementById('mobile-menu-drawer');
+            const hamIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-menu-icon');
+            const btn = document.getElementById('mobile-menu-btn');
+
+            drawer.classList.add('hidden');
+            hamIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+
+        /* ==========================================================================
+           2. RELOJ DE CUENTA REGRESIVA EN VIVO HACIA EL 19 DE NOVIEMBRE
+           ========================================================================== */
+        function updateBirthdayCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            // 19 de noviembre (mes 10 en índice base 0)
+            let targetDate = new Date(currentYear, 10, 19, 0, 0, 0);
+
+            const isTodayBirthday = (now.getMonth() === 10 && now.getDate() === 19);
+            const heading = document.getElementById('countdown-heading');
+            const grid = document.getElementById('countdown-grid');
+
+            if (isTodayBirthday) {
+                heading.textContent = 'HOY ES TU GRAN DÍA DE CUMPLEAÑOS';
+                grid.innerHTML = `
+                    <div class="col-span-4 py-3.5 px-4 rounded-2xl bg-vibrantFuchsia/20 border border-roseGlow/45">
+                        <p class="font-serif italic text-xl sm:text-2xl text-cleanWhite">Feliz Cumpleaños, Jenn. Que hoy brilles más que nunca.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (now > targetDate) {
+                targetDate = new Date(currentYear + 1, 10, 19, 0, 0, 0);
+            }
+
+            const diff = targetDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            const elDays = document.getElementById('cd-days');
+            if (elDays) {
+                elDays.textContent = String(days).padStart(2, '0');
+                document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
+            }
+        }
+        setInterval(updateBirthdayCountdown, 1000);
+        updateBirthdayCountdown();
+
+        /* ==========================================================================
+           3. CONTROL DE GALERÍA DIFUMINADA (BLUR REVEAL) + MODAL SUBIR FOTO
+           ========================================================================== */
+        const photoStates = [false, false, false];
+        let currentGlobalBlur = 16;
+        let allRevealed = false;
+
+        function toggleSinglePhoto(index) {
+            photoStates[index] = !photoStates[index];
+            applyPhotoVisualState(index);
+        }
+
+        function hoverRevealPhoto(index, isHovering) {
+            if (photoStates[index]) return;
+
+            const img = document.getElementById(`gallery-img-${index}`);
+            const overlay = document.getElementById(`overlay-${index}`);
+
+            if (isHovering) {
+                img.style.filter = 'blur(0px)';
+                overlay.style.opacity = '0';
+            } else {
+                img.style.filter = `blur(${currentGlobalBlur}px)`;
+                overlay.style.opacity = '1';
+            }
+        }
+
+        function applyPhotoVisualState(index) {
+            const img = document.getElementById(`gallery-img-${index}`);
+            const overlay = document.getElementById(`overlay-${index}`);
+            const btn = document.getElementById(`btn-photo-${index}`);
+
+            if (photoStates[index]) {
+                img.style.filter = 'blur(0px)';
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+                btn.innerHTML = '<i data-lucide="eye-off" class="w-3.5 h-3.5 text-pastelPink"></i><span>Difuminar</span>';
+            } else {
+                img.style.filter = `blur(${currentGlobalBlur}px)`;
+                overlay.style.opacity = '1';
+                overlay.style.pointerEvents = 'auto';
+                btn.innerHTML = '<i data-lucide="eye" class="w-3.5 h-3.5 text-pastelPink"></i><span>Revelar recuerdo</span>';
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function updateGlobalBlur(value) {
+            currentGlobalBlur = parseInt(value, 10);
+            document.getElementById('blur-value-label').textContent = `${currentGlobalBlur}px`;
+
+            photoStates.forEach((isRevealed, index) => {
+                if (!isRevealed) {
+                    document.getElementById(`gallery-img-${index}`).style.filter = `blur(${currentGlobalBlur}px)`;
+                }
+            });
+        }
+
+        function toggleAllPhotos() {
+            allRevealed = !allRevealed;
+            const toggleAllBtn = document.getElementById('toggle-all-btn');
+
+            for (let i = 0; i < photoStates.length; i++) {
+                photoStates[i] = allRevealed;
+                applyPhotoVisualState(i);
+            }
+
+            if (allRevealed) {
+                toggleAllBtn.innerHTML = '<i data-lucide="eye-off" class="w-4 h-4 text-pastelPink"></i><span>Difuminar Todas</span>';
+                showToast('Todas las fotografías han sido reveladas');
+            } else {
+                toggleAllBtn.innerHTML = '<i data-lucide="eye" class="w-4 h-4 text-pastelPink"></i><span>Revelar Todas</span>';
+                showToast('Efecto difuminado restaurado');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function openUploadModal() {
+            const modal = document.getElementById('upload-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeUploadModal() {
+            const modal = document.getElementById('upload-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function updateSelectedFileName(input) {
+            const label = document.getElementById('selected-file-name');
+            if (input.files && input.files[0]) {
+                label.textContent = input.files[0].name;
+            }
+        }
+
+        function handleCustomPhotoUpload(e) {
+            e.preventDefault();
+            const frameIndex = parseInt(document.getElementById('target-frame-select').value, 10);
+            const fileInput = document.getElementById('custom-photo-input');
+            const customCaption = document.getElementById('custom-caption-input').value.trim();
+
+            if (!fileInput.files || !fileInput.files[0]) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const imgEl = document.getElementById(`gallery-img-${frameIndex}`);
+                imgEl.src = event.target.result;
+
+                if (customCaption) {
+                    const card = imgEl.closest('.group');
+                    const quoteEl = card.querySelector('p.font-serif');
+                    if (quoteEl) quoteEl.textContent = `“${customCaption}”`;
+                }
+
+                photoStates[frameIndex] = false;
+                applyPhotoVisualState(frameIndex);
+                closeUploadModal();
+                fileInput.value = '';
+                document.getElementById('selected-file-name').textContent = 'Toca para elegir una foto (JPG, PNG, WEBP)';
+                document.getElementById('custom-caption-input').value = '';
+                showToast(`Fotografía aplicada al Marco 0${frameIndex + 1}`);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        /* ==========================================================================
+           4. CUADRÍCULA INTERACTIVA: 19 DESEOS PARA EL 19 DE NOVIEMBRE
+           ========================================================================== */
+        const nineteenWishes = [
+            { text: "Paz interior en cada amanecer.", icon: "sun" },
+            { text: "Salud infinita para ti y tus compañeros peludos.", icon: "heart" },
+            { text: "Que nunca te falte música que inspire tu alma.", icon: "music" },
+            { text: "Nuevos viajes que llenen tu vida de magia.", icon: "compass" },
+            { text: "Proyectos que superen todos tus sueños.", icon: "sparkles" },
+            { text: "Risas sinceras con quienes te quieren bien.", icon: "smile" },
+            { text: "Inspiración constante frente a cada lente.", icon: "camera" },
+            { text: "Tranquilidad frente al ruido del mundo.", icon: "feather" },
+            { text: "Fuerza para seguir protegiendo vidas inocentes.", icon: "shield-heart" },
+            { text: "Melodías inolvidables en cada nota de tu vida.", icon: "disc" },
+            { text: "Abundancia en amor, calma y bienestar.", icon: "gem" },
+            { text: "Libertad para ser siempre fiel a tu esencia.", icon: "wind" },
+            { text: "Atardeceres rosados llenos de gratitud.", icon: "sunset" },
+            { text: "Sabiduría en cada nuevo paso que decidas dar.", icon: "star" },
+            { text: "Abrazos que recarguen tu corazón.", icon: "heart-handshake" },
+            { text: "Que tu nobleza regrese multiplicada a ti.", icon: "award" },
+            { text: "Momentos simples que se vuelvan eternos.", icon: "infinity" },
+            { text: "Confianza plena en la mujer extraordinaria que eres.", icon: "crown" },
+            { text: "Un año inolvidable. Feliz cumpleaños, Jenn.", icon: "party-popper" }
+        ];
+
+        function initWishesGrid() {
+            const grid = document.getElementById('wishes-grid');
+            if (!grid) return;
+
+            grid.innerHTML = nineteenWishes.map((item, idx) => {
+                const num = String(idx + 1).padStart(2, '0');
+                const safeIcon = item.icon === 'shield-heart' ? 'shield-check' : item.icon;
+                return `
+                    <button type="button" onclick="revealWishCard(this, ${idx})" 
+                            class="wish-card group relative min-h-[142px] sm:min-h-[156px] p-4 rounded-2xl bg-charcoal/90 hover:bg-charcoal border border-cleanWhite/10 hover:border-pastelPink/50 transition-all duration-300 flex flex-col items-center justify-center text-center shadow-lg active:scale-95">
+                        <span class="wish-num font-serif text-3xl sm:text-4xl font-bold bg-gradient-to-b from-cleanWhite to-pastelPink bg-clip-text text-transparent group-hover:scale-110 transition-transform">
+                            ${num}
+                        </span>
+                        <span class="wish-hint inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-roseGlow/85 mt-2">
+                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                            <span>Tocar deseo</span>
+                        </span>
+                        <div class="wish-text hidden flex-col items-center gap-2">
+                            <span class="w-7 h-7 rounded-full bg-vibrantFuchsia/25 border border-pastelPink/40 flex items-center justify-center text-pastelPink">
+                                <i data-lucide="${safeIcon}" class="w-3.5 h-3.5"></i>
+                            </span>
+                            <p class="text-xs sm:text-sm text-cleanWhite/95 font-light leading-snug">
+                                “${item.text}”
+                            </p>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function revealWishCard(cardEl, idx) {
+            const isRevealed = cardEl.classList.contains('revealed');
+            const numEl = cardEl.querySelector('.wish-num');
+            const hintEl = cardEl.querySelector('.wish-hint');
+            const textEl = cardEl.querySelector('.wish-text');
+
+            if (!isRevealed) {
+                cardEl.classList.add('revealed', 'border-roseGlow/75', 'bg-vibrantFuchsia/15', 'shadow-vibrantFuchsia/20');
+                numEl.classList.add('hidden');
+                hintEl.classList.add('hidden');
+                textEl.classList.remove('hidden');
+                textEl.classList.add('flex');
+                if (idx === 18) triggerConfetti();
+            } else {
+                cardEl.classList.remove('revealed', 'border-roseGlow/75', 'bg-vibrantFuchsia/15', 'shadow-vibrantFuchsia/20');
+                numEl.classList.remove('hidden');
+                hintEl.classList.remove('hidden');
+                textEl.classList.add('hidden');
+                textEl.classList.remove('flex');
+            }
+        }
+
+        /* ==========================================================================
+           5. CARTA DE CUMPLEAÑOS (SOBRE DIGITAL INTERACTIVO)
+           ========================================================================== */
+        let isLetterOpen = false;
+
+        function toggleLetter() {
+            isLetterOpen = !isLetterOpen;
+            const body = document.getElementById('letter-body');
+            const chevron = document.getElementById('letter-chevron');
+            const seal = document.getElementById('wax-seal');
+            const title = document.getElementById('letter-prompt-title');
+
+            if (isLetterOpen) {
+                body.classList.add('open');
+                chevron.style.transform = 'rotate(180deg)';
+                seal.style.transform = 'scale(1.08) rotate(8deg)';
+                title.textContent = 'Tu Carta de Cumpleaños';
+            } else {
+                body.classList.remove('open');
+                chevron.style.transform = 'rotate(0deg)';
+                seal.style.transform = 'scale(1) rotate(0deg)';
+                title.textContent = 'Toca para abrir tu carta de cumpleaños';
+            }
+        }
+
+        function openEnvelopeFromHero() {
+            if (!isLetterOpen) {
+                setTimeout(() => toggleLetter(), 450);
+            }
+        }
+
+        /* ==========================================================================
+           6. REPRODUCTOR AMBIENTAL DE PIANO Y SINTETIZADOR (WEB AUDIO API)
+           ========================================================================== */
+        let audioCtx = null;
+        let pianoInterval = null;
+        let isPianoPlaying = false;
+        let chordStep = 0;
+
+        // Progresión cálida de acordes suaves (Fmaj7 -> Em7 -> Dm7 -> Cmaj7)
+        const ambientChords = [
+            [174.61, 220.00, 261.63, 329.63],
+            [164.81, 196.00, 246.94, 293.66],
+            [146.83, 174.61, 220.00, 261.63],
+            [130.81, 164.81, 196.00, 246.94]
+        ];
+
+        function playSoftPianoChord(frequencies) {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            frequencies.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + i * 0.14);
+
+                gain.gain.setValueAtTime(0.0001, now + i * 0.14);
+                gain.gain.exponentialRampToValueAtTime(0.032, now + i * 0.14 + 0.18);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.14 + 3.2);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now + i * 0.14);
+                osc.stop(now + i * 0.14 + 3.3);
+            });
+        }
+
+        function togglePianoMusic() {
+            const idleIcon = document.getElementById('piano-icon-idle');
+            const eqBars = document.getElementById('piano-eq-bars');
+            const subLabel = document.getElementById('piano-sub-label');
+
+            if (!isPianoPlaying) {
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContextClass();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                isPianoPlaying = true;
+                idleIcon.classList.add('hidden');
+                eqBars.classList.remove('hidden');
+                eqBars.classList.add('flex');
+                subLabel.textContent = 'Sonando suave';
+
+                playSoftPianoChord(ambientChords[chordStep % ambientChords.length]);
+                chordStep++;
+
+                pianoInterval = setInterval(() => {
+                    playSoftPianoChord(ambientChords[chordStep % ambientChords.length]);
+                    chordStep++;
+                }, 3400);
+
+                showToast('Melodía ambiental de piano activada');
+            } else {
+                isPianoPlaying = false;
+                clearInterval(pianoInterval);
+                idleIcon.classList.remove('hidden');
+                eqBars.classList.add('hidden');
+                eqBars.classList.remove('flex');
+                subLabel.textContent = 'Activar ambiente';
+                showToast('Melodía ambiental pausada');
+            }
+        }
+
+        /* ==========================================================================
+           7. NOTIFICACIÓN TOAST ELEGANTE
+           ========================================================================== */
+        let toastTimeout;
+        function showToast(text) {
+            const toast = document.getElementById('toast-notification');
+            const msg = document.getElementById('toast-message');
+            msg.textContent = text;
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        /* ==========================================================================
+           8. CONFETI INTERACTIVO EN TONOS ROSA, FUCSIA, BLANCO Y PLATA
+           ========================================================================== */
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationFrameId = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const confettiColors = ['#F9A8D4', '#F472B6', '#EC4899', '#FAFAFA', '#E4E4E7'];
+
+        function triggerConfetti() {
+            for (let i = 0; i < 95; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: -20 - Math.random() * 120,
+                    size: Math.random() * 7 + 4,
+                    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+                    speedY: Math.random() * 3.5 + 2,
+                    speedX: (Math.random() - 0.5) * 3,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 8,
+                    opacity: 1
+                });
+            }
+            if (!animationFrameId) {
+                animateConfetti();
+            }
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p, index) => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.rotation += p.rotationSpeed;
+
+                if (p.y > canvas.height - 100) {
+                    p.opacity -= 0.02;
+                }
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.globalAlpha = Math.max(0, p.opacity);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                ctx.restore();
+
+                if (p.opacity <= 0 || p.y > canvas.height + 20) {
+                    particles.splice(index, 1);
+                }
+            });
+
+            if (particles.length > 0) {
+                animationFrameId = requestAnimationFrame(animateConfetti);
+            } else {
+                animationFrameId = null;
+            }
+        }
+
+        /* ==========================================================================
+           9. INICIALIZACIÓN GENERAL AL CARGAR LA PÁGINA
+           ========================================================================== */
+        window.onload = function () {
+            initWishesGrid();
+            if (window.lucide) lucide.createIcons();
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+
+            setTimeout(() => triggerConfetti(), 600);
+        };
+    </script>
+</body>
+</html>

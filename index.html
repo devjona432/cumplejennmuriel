@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños, Jenn Muriel | Edición Especial</title>
+
+    <!-- ======================================================================
+         RECURSOS EXTERNOS
+         ====================================================================== -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ======================================================================
+         ESTILOS PROPIOS
+         ====================================================================== -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Configuración de Tailwind (debe ir después del CDN) -->
+    <script src="js/tailwind.config.js"></script>
+</head>
+<body class="font-sans antialiased selection:bg-vibrantFuchsia/30 selection:text-cleanWhite">
+
+    <!-- ======================================================================
+         SECCIÓN 00 · CAPAS GLOBALES (CONFETI, TOAST Y CONTROLES FLOTANTES)
+         ====================================================================== -->
+
+    <!-- Canvas de Confeti Interactivo -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Notificación Toast (Sin emojis ni alert) -->
+    <div id="toast-notification" class="fixed bottom-24 sm:bottom-24 right-4 sm:right-6 left-4 sm:left-auto z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-charcoal/95 backdrop-blur-md border border-roseGlow/45 text-cleanWhite px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+            <span class="w-7 h-7 rounded-full bg-vibrantFuchsia/20 border border-roseGlow/40 flex items-center justify-center text-pastelPink shrink-0">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </span>
+            <p id="toast-message" class="text-xs sm:text-sm font-medium">Notificación</p>
+        </div>
+    </div>
+
+    <!-- Controles Flotantes en Esquina Inferior Derecha: Confeti + Melodía Ambiental de Piano -->
+    <div class="fixed bottom-4 right-4 z-40 flex items-center gap-2.5">
+        <!-- Botón secundario para lanzar ráfagas de confeti -->
+        <button onclick="triggerConfetti()" class="w-12 h-12 rounded-full bg-charcoal/90 hover:bg-charcoal border border-pastelPink/40 backdrop-blur-xl shadow-2xl shadow-vibrantFuchsia/20 flex items-center justify-center text-pastelPink hover:text-cleanWhite transition-all active:scale-95" aria-label="Lanzar ráfaga de confeti" title="Lanzar confeti">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Botón principal de melodía ambiental de piano -->
+        <button id="piano-toggle-btn" onclick="togglePianoMusic()" class="group flex items-center gap-3 px-4 py-3 rounded-full bg-charcoal/95 hover:bg-charcoal border border-pastelPink/45 backdrop-blur-xl shadow-2xl shadow-vibrantFuchsia/25 transition-all active:scale-95 min-h-[48px]" aria-label="Alternar melodía ambiental de piano">
+            <div id="piano-icon-idle" class="w-7 h-7 rounded-full bg-vibrantFuchsia/20 border border-roseGlow/50 flex items-center justify-center text-pastelPink">
+                <i data-lucide="music" class="w-4 h-4"></i>
+            </div>
+            <div id="piano-eq-bars" class="hidden items-end gap-0.5 h-4 w-7 justify-center">
+                <span class="eq-bar w-1 h-4 bg-pastelPink rounded-full"></span>
+                <span class="eq-bar w-1 h-4 bg-vibrantFuchsia rounded-full"></span>
+                <span class="eq-bar w-1 h-4 bg-cleanWhite rounded-full"></span>
+                <span class="eq-bar w-1 h-4 bg-roseGlow rounded-full"></span>
+            </div>
+            <div class="text-left pr-1">
+                <span id="piano-status-label" class="block text-xs font-semibold text-cleanWhite leading-none">Melodía Piano</span>
+                <span id="piano-sub-label" class="block text-[10px] text-pastelPink/85 mt-0.5">Activar ambiente</span>
+            </div>
+        </button>
+    </div>
+
+    <!-- ======================================================================
+         SECCIÓN 01 · BARRA DE NAVEGACIÓN (MOBILE-FIRST)
+         ====================================================================== -->
+    <nav class="fixed top-0 inset-x-0 z-40 bg-obsidian/85 backdrop-blur-xl border-b border-cleanWhite/10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="#" class="font-serif italic text-xl tracking-wide text-cleanWhite flex items-center gap-2.5 py-2">
+                <span class="w-2 h-2 rounded-full bg-vibrantFuchsia inline-block shadow-[0_0_8px_#EC4899]"></span>
+                JM <span class="text-[11px] font-sans not-italic uppercase tracking-[0.22em] text-pastelPink ml-0.5">19 · Nov</span>
+            </a>
+
+            <!-- Enlaces Escritorio -->
+            <div class="hidden lg:flex items-center gap-8 text-sm text-cleanWhite/80">
+                <a href="#esencia" class="hover:text-pastelPink transition-colors py-2">Tu Esencia</a>
+                <a href="#galeria" class="hover:text-pastelPink transition-colors py-2">Tus hermosas fotos</a>
+                <a href="#deseos" class="hover:text-pastelPink transition-colors py-2">19 Deseos</a>
+                <a href="#carta" class="hover:text-pastelPink transition-colors py-2">Carta</a>
+            </div>
+
+            <!-- Botón Celebrar + Hamburguesa Móvil -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="triggerConfetti()" class="px-4 py-2.5 rounded-full bg-vibrantFuchsia/20 hover:bg-vibrantFuchsia/35 border border-roseGlow/45 text-cleanWhite text-xs sm:text-sm font-medium transition-all flex items-center gap-2 active:scale-95 min-h-[42px]">
+                    <i data-lucide="party-popper" class="w-4 h-4 text-pastelPink"></i>
+                    <span>Celebrar</span>
+                </button>
+
+                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl bg-cleanWhite/[0.05] hover:bg-cleanWhite/[0.1] border border-cleanWhite/15 text-cleanWhite min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Abrir menú de navegación" aria-expanded="false">
+                    <i id="hamburger-icon" data-lucide="menu" class="w-5 h-5"></i>
+                    <i id="close-menu-icon" data-lucide="x" class="w-5 h-5 hidden"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menú Desplegable Móvil -->
+        <div id="mobile-menu-drawer" class="hidden lg:hidden bg-obsidian/98 backdrop-blur-2xl border-b border-pastelPink/20 px-4 pt-3 pb-6 space-y-1.5">
+            <a href="#esencia" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="sparkles" class="w-4 h-4 text-pastelPink"></i>
+                <span>Tu Esencia</span>
+            </a>
+            <a href="#galeria" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="image" class="w-4 h-4 text-pastelPink"></i>
+                <span>Tus hermosas fotos</span>
+            </a>
+            <a href="#deseos" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="star" class="w-4 h-4 text-pastelPink"></i>
+                <span>19 Deseos de Cumpleaños</span>
+            </a>
+            <a href="#carta" onclick="closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-cleanWhite/85 hover:text-pastelPink hover:bg-cleanWhite/[0.05] transition-colors">
+                <i data-lucide="mail-open" class="w-4 h-4 text-pastelPink"></i>
+                <span>Carta de Cumpleaños</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ======================================================================
+         SECCIÓN 02 · HERO CINEMATOGRÁFICO (RETRATO DIFUMINADO + RELOJ EN VIVO)
+         ====================================================================== -->
+    <header class="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-4 sm:px-6 ambient-glow overflow-hidden">
+        <!-- Retrato de Jenn Muriel suavemente difuminado como atmósfera de fondo -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <img src="https://www.elespectador.com/wp-content/uploads/elespectador/73KVEGLNQVD6RI4M2URUY2GXRI.jpg?quality=60&w=768"
+                 onerror="this.style.display='none'"
+                 alt="Atmósfera retrato Jenn Muriel"
+                 class="hero-portrait-blur w-full h-full object-cover object-center opacity-25 scale-110">
+            <div class="absolute inset-0 bg-gradient-to-b from-obsidian/80 via-obsidian/75 to-obsidian"></div>
+        </div>
+
+        <!-- Destellos ambientales en rosa pastel y fucsia -->
+        <div class="absolute top-1/4 left-4 sm:left-10 w-64 sm:w-80 h-64 sm:h-80 bg-pastelPink/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-1/4 right-4 sm:right-10 w-72 sm:w-96 h-72 sm:h-96 bg-vibrantFuchsia/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10 w-full">
+            <!-- Insignia de Fecha -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-cleanWhite/[0.05] border border-pastelPink/35 backdrop-blur-md mb-6 sm:mb-8">
+                <i data-lucide="calendar-heart" class="w-4 h-4 text-vibrantFuchsia"></i>
+                <span class="text-xs sm:text-sm uppercase tracking-[0.22em] text-pastelPink font-medium">19 de Noviembre · Edición Especial</span>
+            </div>
+
+            <!-- Título Principal -->
+            <h1 class="hero-title font-serif font-bold tracking-tight text-cleanWhite mb-5 sm:mb-6">
+                Feliz Cumpleaños, <br>
+                <span class="italic font-normal bg-gradient-to-r from-cleanWhite via-pastelPink to-vibrantFuchsia bg-clip-text text-transparent">Jenn Muriel</span>
+            </h1>
+
+            <!-- Subtítulo -->
+            <p class="max-w-2xl mx-auto text-sm sm:text-lg md:text-xl text-cleanWhite/80 font-light leading-relaxed mb-8 sm:mb-10 px-2">
+                Un detalle creado exclusivamente para celebrar tu luz propia, tu autenticidad sin filtros, tu sensibilidad por los animales y la energía única que transmites cada día.
+            </p>
+
+            <!-- Reloj de Cuenta Regresiva en Vivo hacia el 19 de Noviembre -->
+            <div id="countdown-container" class="max-w-xl mx-auto mb-9 sm:mb-10 p-4 sm:p-5 rounded-3xl bg-charcoal/85 border border-pastelPink/30 backdrop-blur-xl shadow-2xl">
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-pastelPink"></i>
+                    <span id="countdown-heading" class="text-[11px] uppercase tracking-[0.22em] text-pastelPink font-semibold">
+                        Cuenta regresiva para celebrar tu día
+                    </span>
+                </div>
+                <div id="countdown-grid" class="grid grid-cols-4 gap-2 sm:gap-4">
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-days" class="font-serif text-2xl sm:text-3xl font-bold text-cleanWhite block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Días</span>
+                    </div>
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-hours" class="font-serif text-2xl sm:text-3xl font-bold text-cleanWhite block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Horas</span>
+                    </div>
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-minutes" class="font-serif text-2xl sm:text-3xl font-bold text-cleanWhite block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Min</span>
+                    </div>
+                    <div class="p-2.5 sm:p-3 rounded-2xl bg-obsidian/85 border border-cleanWhite/10">
+                        <span id="cd-seconds" class="font-serif text-2xl sm:text-3xl font-bold text-roseGlow block">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-wider text-pastelPink/85">Seg</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 px-2">
+                <button onclick="triggerConfetti()" class="w-full sm:w-auto px-7 py-4 rounded-full bg-gradient-to-r from-vibrantFuchsia to-roseGlow text-cleanWhite font-semibold text-sm sm:text-base shadow-lg shadow-vibrantFuchsia/30 hover:shadow-vibrantFuchsia/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2.5 min-h-[52px]">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    <span>Lanzar Confeti de Cumpleaños</span>
+                </button>
+                <a href="#carta" onclick="openEnvelopeFromHero()" class="w-full sm:w-auto px-7 py-4 rounded-full bg-cleanWhite/[0.06] hover:bg-cleanWhite/[0.12] border border-cleanWhite/25 text-cleanWhite font-medium text-sm sm:text-base backdrop-blur-md transition-all flex items-center justify-center gap-2.5 min-h-[52px]">
+                    <i data-lucide="mail-open" class="w-5 h-5 text-pastelPink"></i>
+                    <span>Leer tu Carta Personal</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ======================================================================
+         SECCIÓN 03 · TU ESENCIA — LO QUE TE HACE ÚNICA (4 TARJETAS)
+         ====================================================================== -->
+    <section id="esencia" class="py-16 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto">
+        <div class="text-center mb-12 sm:mb-16 reveal-on-scroll">
+            <span class="text-xs uppercase tracking-[0.25em] text-roseGlow font-semibold">Admiración Genuina</span>
+            <h2 class="section-title font-serif text-cleanWhite mt-2.5">Tu Esencia — Lo que te hace única</h2>
+            <p class="text-cleanWhite/65 text-sm sm:text-base mt-3 max-w-2xl mx-auto">
+                Cuatro cualidades que reflejan tu brillo natural y hacen especial cada momento que compartes.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Tarjeta 1: Autenticidad sin filtros -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-pastelPink/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-pastelPink/15 border border-pastelPink/35 flex items-center justify-center text-pastelPink mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="gem" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Autenticidad sin filtros</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    Tu manera transparente de expresarte y mantenerte fiel a lo que eres convierte tu presencia en una inspiración real y cercana.
+                </p>
+            </div>
+
+            <!-- Tarjeta 2: Sensibilidad y amor por los animales -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-vibrantFuchsia/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-vibrantFuchsia/15 border border-vibrantFuchsia/35 flex items-center justify-center text-roseGlow mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Sensibilidad y amor por los animales</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    El cariño incondicional y la ternura con la que cuidas y proteges a los animales dejan ver la nobleza de tu corazón.
+                </p>
+            </div>
+
+            <!-- Tarjeta 3: Fuerza y carácter propio -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-pastelPink/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-pastelPink/15 border border-pastelPink/35 flex items-center justify-center text-pastelPink mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Fuerza y carácter propio</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    Tu determinación para trazar tu propio camino con seguridad, estilo e independencia demuestra una fortaleza admirable.
+                </p>
+            </div>
+
+            <!-- Tarjeta 4: Luz y evolución constante -->
+            <div class="reveal-on-scroll group p-7 rounded-3xl bg-charcoal/85 border border-cleanWhite/10 hover:border-vibrantFuchsia/50 transition-all duration-500 backdrop-blur-sm flex flex-col">
+                <div class="w-12 h-12 rounded-2xl bg-vibrantFuchsia/15 border border-vibrantFuchsia/35 flex items-center justify-center text-roseGlow mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="sun" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl text-cleanWhite mb-3">Luz y evolución constante</h3>
+                <p class="text-cleanWhite/70 text-sm leading-relaxed">
+                    Cada nueva etapa te encuentra creciendo, renovando tus sueños y proyectando una serenidad que ilumina a quienes te rodean.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================================
+         SECCIÓN 04 · GALERÍA DIFUMINADA INTERACTIVA
+         ====================================================================== -->
+    <section id="galeria" class="py-16 sm:py-24 px-4 sm:px-6 bg-charcoal/55 border-y border-cleanWhite/10">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 reveal-on-scroll">
+                <div></span>
+                    <h2 class="section-title font-serif text-cleanWhite mt-2">Tus hermosas fotos</h2>
+                </div>
+
+                <!-- Panel de Control Global del Difuminado -->
+                <div class="p-4 sm:p-5 rounded-2xl bg-obsidian/95 border border-pastelPink/30 backdrop-blur-md flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shadow-xl">
+                    <div class="flex flex-col gap-2 min-w-[180px]">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-cleanWhite/75">Intensidad difuminado:</span>
+                            <span id="blur-value-label" class="text-roseGlow font-semibold">16px</span>
+                        </div>
+                        <input id="global-blur-slider" type="range" min="0" max="28" value="16" oninput="updateGlobalBlur(this.value)" aria-label="Control de intensidad de difuminado">
+                    </div>
+
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                        <button id="toggle-all-btn" onclick="toggleAllPhotos()" class="flex-1 sm:flex-initial px-4 py-3 rounded-xl bg-vibrantFuchsia/20 hover:bg-vibrantFuchsia/35 border border-roseGlow/45 text-cleanWhite text-xs font-semibold transition-all whitespace-nowrap flex items-center justify-center gap-2 min-h-[44px]">
+                            <i data-lucide="eye" class="w-4 h-4 text-pastelPink"></i>
+                            <span id="toggle-all-text">Revelar Todas</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Tarjetas Fotográficas Difuminadas -->
+            <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
+
+                <!-- Foto 1: Retrato Real de Jenn Muriel #1 -->
+                <div class="reveal-on-scroll group relative rounded-3xl overflow-hidden bg-obsidian border border-pastelPink/25 hover:border-roseGlow/60 transition-colors shadow-2xl flex flex-col">
+                    <div class="relative aspect-[4/5] overflow-hidden cursor-pointer select-none"
+                         onmouseenter="hoverRevealPhoto(0, true)"
+                         onmouseleave="hoverRevealPhoto(0, false)"
+                         onclick="toggleSinglePhoto(0)">
+                        <img id="gallery-img-0"
+                             src="https://www.elespectador.com/wp-content/uploads/elespectador/73KVEGLNQVD6RI4M2URUY2GXRI.jpg?quality=60&w=768"
+                             onerror="handleImageFallback(this, 'Retrato I')"
+                             alt="Retrato de Jenn Muriel"
+                             class="gallery-photo blur-photo w-full h-full object-cover object-center scale-105 group-hover:scale-100">
+
+                        <div id="overlay-0" class="absolute inset-0 bg-obsidian/45 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
+                            <span class="px-3.5 py-1.5 rounded-full bg-obsidian/90 border border-pastelPink/45 text-[11px] uppercase tracking-wider text-pastelPink mb-2.5 shadow-lg inline-flex items-center gap-1.5">
+                                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                                Retrato I · Luz Propia
+                            </span>
+                            <p class="text-xs text-cleanWhite/90 max-w-[220px] leading-relaxed bg-obsidian/75 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-cleanWhite/10">
+                                Toca o pasa el cursor para revelar este retrato.
+                            </p>
+                        </div>
+
+                        <button type="button" onclick="event.stopPropagation(); toggleSinglePhoto(0)" id="btn-photo-0" class="absolute bottom-4 right-4 z-20 px-4 py-2.5 rounded-full bg-obsidian/90 hover:bg-obsidian border border-roseGlow/55 text-cleanWhite text-xs font-medium backdrop-blur-md shadow-lg transition-all flex items-center gap-1.5 min-h-[40px]">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-pastelPink"></i>
+                            <span>Revelar recuerdo</span>
+                        </button>
+                    </div>
+                    <div class="p-6 bg-charcoal border-t border-cleanWhite/10 flex-1 flex flex-col justify-between">
+                        <p class="font-serif italic text-lg text-cleanWhite/95">“Tu autenticidad es el brillo que te hace inolvidable.”</p>
+                        <span class="text-xs text-pastelPink mt-3 block uppercase tracking-widest">01 · Esencia & Mirada</span>
+                    </div>
+                </div>
+
+                <!-- Foto 2: Retrato Real de Jenn Muriel #2 -->
+                <div class="reveal-on-scroll group relative rounded-3xl overflow-hidden bg-obsidian border border-pastelPink/25 hover:border-roseGlow/60 transition-colors shadow-2xl flex flex-col">
+                    <div class="relative aspect-[4/5] overflow-hidden cursor-pointer select-none"
+                         onmouseenter="hoverRevealPhoto(1, true)"
+                         onmouseleave="hoverRevealPhoto(1, false)"
+                         onclick="toggleSinglePhoto(1)">
+                        <img id="gallery-img-1"
+                             src="https://cloudfront-us-east-1.images.arcpublishing.com/infobae/B4GOPL5E2VG33I227A7ERJ7Q3A.jpg"
+                             onerror="handleImageFallback(this, 'Retrato II')"
+                             alt="Retrato artístico de Jenn Muriel"
+                             class="gallery-photo blur-photo w-full h-full object-cover object-center scale-105 group-hover:scale-100">
+
+                        <div id="overlay-1" class="absolute inset-0 bg-obsidian/45 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
+                            <span class="px-3.5 py-1.5 rounded-full bg-obsidian/90 border border-pastelPink/45 text-[11px] uppercase tracking-wider text-pastelPink mb-2.5 shadow-lg inline-flex items-center gap-1.5">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                Retrato II · Estilo Único
+                            </span>
+                            <p class="text-xs text-cleanWhite/90 max-w-[220px] leading-relaxed bg-obsidian/75 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-cleanWhite/10">
+                                Toca o pasa el cursor para descubrir la nitidez de esta imagen.
+                            </p>
+                        </div>
+
+                        <button type="button" onclick="event.stopPropagation(); toggleSinglePhoto(1)" id="btn-photo-1" class="absolute bottom-4 right-4 z-20 px-4 py-2.5 rounded-full bg-obsidian/90 hover:bg-obsidian border border-roseGlow/55 text-cleanWhite text-xs font-medium backdrop-blur-md shadow-lg transition-all flex items-center gap-1.5 min-h-[40px]">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-pastelPink"></i>
+                            <span>Revelar recuerdo</span>
+                        </button>
+                    </div>
+                    <div class="p-6 bg-charcoal border-t border-cleanWhite/10 flex-1 flex flex-col justify-between">
+                        <p class="font-serif italic text-lg text-cleanWhite/95">“Fuerte, libre y fiel a cada paso de tu propia historia.”</p>
+                        <span class="text-xs text-roseGlow mt-3 block uppercase tracking-widest">02 · Carácter & Estilo</span>
+                    </div>
+                </div>
+
+                <!-- Foto 3: Marco Artístico Personalizable (Por defecto imagen noble / reemplazable desde dispositivo) -->
+                <div class="reveal-on-scroll group relative rounded-3xl overflow-hidden bg-obsidian border border-pastelPink/25 hover:border-roseGlow/60 transition-colors shadow-2xl flex flex-col md:col-span-2 lg:col-span-1">
+                    <div class="relative aspect-[4/5] overflow-hidden cursor-pointer select-none"
+                         onmouseenter="hoverRevealPhoto(2, true)"
+                         onmouseleave="hoverRevealPhoto(2, false)"
+                         onclick="toggleSinglePhoto(2)">
+                        <img id="gallery-img-2"
+                             src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80"
+                             onerror="handleImageFallback(this, 'Recuerdo III')"
+                             alt="Tributo a la ternura y amor animalista"
+                             class="gallery-photo blur-photo w-full h-full object-cover object-center scale-105 group-hover:scale-100">
+
+                        <div id="overlay-2" class="absolute inset-0 bg-obsidian/45 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
+                            <span id="badge-2" class="px-3.5 py-1.5 rounded-full bg-obsidian/90 border border-pastelPink/45 text-[11px] uppercase tracking-wider text-pastelPink mb-2.5 shadow-lg inline-flex items-center gap-1.5">
+                                <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+                                Postal III · Corazón Noble
+                            </span>
+                            <p id="hint-2" class="text-xs text-cleanWhite/90 max-w-[220px] leading-relaxed bg-obsidian/75 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-cleanWhite/10">
+                                Toca para revelar este recuerdo.
+                            </p>
+                        </div>
+
+                        <button type="button" onclick="event.stopPropagation(); toggleSinglePhoto(2)" id="btn-photo-2" class="absolute bottom-4 right-4 z-20 px-4 py-2.5 rounded-full bg-obsidian/90 hover:bg-obsidian border border-roseGlow/55 text-cleanWhite text-xs font-medium backdrop-blur-md shadow-lg transition-all flex items-center gap-1.5 min-h-[40px]">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-pastelPink"></i>
+                            <span>Revelar recuerdo</span>
+                        </button>
+                    </div>
+                    <div class="p-6 bg-charcoal border-t border-cleanWhite/10 flex-1 flex flex-col justify-between">
+                        <p id="caption-2" class="font-serif italic text-lg text-cleanWhite/95">“Que esta nueva vuelta al sol te regale paz, música y sueños cumplidos.”</p>
+                        <span id="subcaption-2" class="text-xs text-pastelPink mt-3 block uppercase tracking-widest">03 · Nobleza & Vida</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================================
+         SECCIÓN 05 · 19 DESEOS PARA EL 19 DE NOVIEMBRE
+         ====================================================================== -->
+    <section id="deseos" class="py-16 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto">
+        <div class="text-center mb-12 sm:mb-14 reveal-on-scroll">
+            <span class="text-xs uppercase tracking-[0.25em] text-roseGlow font-semibold">Un Deseo por Cada Número de tu Día</span>
+            <h2 class="section-title font-serif text-cleanWhite mt-2.5">19 Deseos para el 19 de Noviembre</h2>
+            <p class="text-cleanWhite/65 text-sm sm:text-base mt-3 max-w-xl mx-auto">
+                Toca cada tarjeta numerada del 01 al 19 para iluminarla y descubrir un deseo especial para este nuevo año de vida.
+            </p>
+        </div>
+
+        <!-- Cuadrícula Responsiva de 19 Tarjetas Interactivas -->
+        <div id="wishes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 reveal-on-scroll">
+            <!-- Generado dinámicamente por JavaScript (js/wishes.js) con iconos de Lucide -->
+        </div>
+    </section>
+
+    <!-- ======================================================================
+         SECCIÓN 06 · CARTA DE CUMPLEAÑOS (SOBRE DIGITAL INTERACTIVO)
+         ====================================================================== -->
+    <section id="carta" class="py-16 sm:py-24 px-4 sm:px-6 max-w-4xl mx-auto">
+        <div class="text-center mb-10 sm:mb-12 reveal-on-scroll">
+            <span class="text-xs uppercase tracking-[0.25em] text-roseGlow font-semibold">Un Detalle Exclusivo</span>
+            <h2 class="section-title font-serif text-cleanWhite mt-2">Carta de Cumpleaños</h2>
+        </div>
+
+        <div class="reveal-on-scroll envelope-wrapper">
+            <div class="rounded-3xl bg-gradient-to-b from-charcoal to-obsidian border border-pastelPink/35 shadow-2xl overflow-hidden">
+                <!-- Cabecera del Sobre (Botón para abrir/cerrar) -->
+                <button onclick="toggleLetter()" class="w-full p-6 sm:p-10 text-left flex items-center justify-between gap-4 hover:bg-cleanWhite/[0.02] transition-colors focus:outline-none min-h-[88px]">
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        <div id="wax-seal" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-vibrantFuchsia via-roseGlow to-pastelPink flex items-center justify-center text-cleanWhite font-serif font-bold text-xl shadow-lg shadow-vibrantFuchsia/35 border border-cleanWhite/40 shrink-0 transition-transform duration-500">
+                            JM
+                        </div>
+                        <div>
+                            <span class="text-xs uppercase tracking-widest text-pastelPink block mb-1">Para: Jenn Muriel</span>
+                            <h3 id="letter-prompt-title" class="font-serif text-lg sm:text-2xl text-cleanWhite">Toca  para abrir tu carta de cumpleaños</h3>
+                        </div>
+                    </div>
+                    <span id="letter-chevron" class="text-pastelPink transition-transform duration-500 shrink-0">
+                        <i data-lucide="chevron-down" class="w-6 h-6"></i>
+                    </span>
+                </button>
+
+                <!-- Contenido Desplegable de la Carta -->
+                <div id="letter-body" class="letter-content px-6 sm:px-12">
+                    <div class="border-t border-cleanWhite/10 pt-8 pb-10 space-y-5 text-cleanWhite/85 font-light leading-relaxed text-base sm:text-lg">
+                        <p class="font-serif italic text-2xl text-pastelPink">Querida Jenn,</p>
+                        <p>
+                            Quise crear este pequeño espacio pensando únicamente en ti y en celebrar un año más de tu vida. Más allá de las cámaras y las redes sociales, admiro profundamente la mujer auténtica, sensible y resiliente que eres.
+                        </p>
+                        <p>
+                            Deseo de corazón que este nuevo capítulo venga cargado de tranquilidad, salud para ti y para cada uno de los animalitos que llenan tu vida de amor, y momentos inolvidables junto a las personas que te hacen bien.
+                        </p>
+                        <p>
+                            Que nunca te falten motivos para sonreír, música que acompañe tus días y nuevos sueños por conquistar. Feliz cumpleaños, Jenn.
+                        </p>
+                        <div class="pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-cleanWhite/10">
+                            <div>
+                                <p class="text-xs uppercase tracking-widest text-cleanWhite/50">Con mucho cariño y admiración,</p>
+                                <p class="font-serif italic text-lg text-roseGlow mt-0.5">Un detalle hecho especialmente para ti</p>
+                            </div>
+                            <button onclick="triggerConfetti()" class="self-start sm:self-auto px-5 py-3 rounded-full bg-vibrantFuchsia/20 border border-roseGlow/45 text-cleanWhite text-xs font-medium hover:bg-vibrantFuchsia/35 transition-all inline-flex items-center gap-2 min-h-[44px]">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-pastelPink"></i>
+                                <span>Celebrar tu día</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================================
+         SECCIÓN 07 · PIE DE PÁGINA
+         ====================================================================== -->
+    <footer class="py-12 pb-24 sm:pb-12 px-4 text-center border-t border-cleanWhite/10 text-xs text-cleanWhite/55">
+        <p class="font-serif italic text-base text-pastelPink mb-2">Feliz Cumpleaños, Jenn Muriel · 19 de Noviembre</p>
+        <p>Un obsequio digital diseñado con cariño para celebrar tu vida.</p>
+    </footer>
+
+    <!-- ======================================================================
+         SCRIPTS (el orden importa: utilidades y efectos primero, init al final)
+         ====================================================================== -->
+    <script src="js/utils.js" defer></script>
+    <script src="js/confetti.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/countdown.js" defer></script>
+    <script src="js/gallery.js" defer></script>
+    <script src="js/wishes.js" defer></script>
+    <script src="js/letter.js" defer></script>
+    <script src="js/audio.js" defer></script>
+    <script src="js/app.js" defer></script>
+</body>
+</html>
